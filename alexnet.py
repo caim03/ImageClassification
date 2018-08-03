@@ -11,29 +11,50 @@ def build_model_fn(is_training, images, params):
     # Reshape input in correct format
     out = tf.reshape(images, [-1, params['Height'], params['Width'], params['Channels']])  # [-1, 240, 320, 3]
 
-    # Extracts features with first convolution layer - output [240, 320, 6] because input use padding to 245 x 325
-    out = tf.layers.conv2d(inputs=out, filters=6, kernel_size=[5, 5], strides=1, padding='same', activation=tf.nn.relu)
+    # Extracts features with first convolution layer
+    out = tf.layers.conv2d(inputs=out, filters=96, kernel_size=[11, 11], strides=4, padding='same', activation=tf.nn.relu)
 
-    # Reduce dimension with pooling layer - output [120, 160, 6]
-    out = tf.layers.average_pooling2d(inputs=out, pool_size=[2, 2], strides=2)
+    # Normalization layer to avoid overfitting
+    out = tf.nn.local_response_normalization(input=out, depth_radius=2, alpha=0.00002, beta=0.75, bias=1)
 
-    # Extracts more specific features with second convloution layer - output [120, 160, 16]
-    out = tf.layers.conv2d(inputs=out, filters=16, kernel_size=[5, 5], strides=1, padding='same', activation=tf.nn.relu)
+    # Reduce dimension with pooling layer
+    out = tf.layers.max_pooling2d(inputs=out, pool_size=[3, 3], strides=2, padding='valid')
+
+    # Extracts more specific features with second convolution layer
+    out = tf.layers.conv2d(inputs=out, filters=256, kernel_size=[5, 5], strides=1, padding='same', activation=tf.nn.relu)
+
+    # Normalization layer to avoid overfitting
+    out = tf.nn.local_response_normalization(input=out, depth_radius=2, alpha=0.00002, beta=0.75, bias=1)
 
     # Reduce dimension with second pooling layer - output [60, 80, 16]
-    out = tf.layers.average_pooling2d(inputs=out, pool_size=[2, 2], strides=2)
+    out = tf.layers.max_pooling2d(inputs=out, pool_size=[3, 3], strides=2, padding='valid')
+
+    # Third convolution layer
+    out = tf.layers.conv2d(inputs=out, filters=384, kernel_size=[3, 3], strides=1, padding='same', activation=tf.nn.relu)
+
+    # Fourth convolution layer
+    out = tf.layers.conv2d(inputs=out, filters=384, kernel_size=[3, 3], strides=1, padding='same', activation=tf.nn.relu)
+
+    # Five convolution layer
+    out = tf.layers.conv2d(inputs=out, filters=256, kernel_size=[3, 3], strides=1, padding='same', activation=tf.nn.relu)
 
     # Flat output to use a fully connected MLP
     out = tf.layers.flatten(out)
 
     # Dense layer to get classification
-    out = tf.layers.dense(inputs=out, units=1024, activation=tf.nn.relu)
+    out = tf.layers.dense(inputs=out, units=4096, activation=tf.nn.relu)
 
     # Dropout layer to perform regularization
-    out = tf.layers.dropout(inputs=out, rate=0.5, training=is_training)
+    #out = tf.layers.dropout(inputs=out, rate=0.5, training=is_training)
+
+    # Dense layer to get classification
+    out = tf.layers.dense(inputs=out, units=4096, activation=tf.nn.relu)
+
+    # Dropout layer to perform regularization
+    #out = tf.layers.dropout(inputs=out, rate=0.5, training=is_training)
 
     # Logits layer - 4 classes
-    # Input Tensor Shape: [batch_size, 1024]
+    # Input Tensor Shape: [batch_size, 4096]
     # Output Tensor Shape: [batch_size, 4]
     logits = tf.layers.dense(inputs=out, units=4)
 
@@ -52,7 +73,7 @@ def model_fn(mode, inputs, params, reuse=False):
     # Define the model
     # Compute logits and predictions
     with tf.variable_scope('model', reuse=reuse):
-        logits = build_model_fn(is_training, images, params)
+        logits= build_model_fn(is_training, images, params)
         # Return the position in which the probability is max in softmax or sparse softmax (aka the class predicted)
         predictions = tf.argmax(logits, 1)
 

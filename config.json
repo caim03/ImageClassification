@@ -16,7 +16,7 @@
     "Height": 240,
     "Width": 320,
     "Channels": 3,
-    "BatchSize": 32,
+    "BatchSize": 16,
     "NumEpoch": 30,
     "PrefetchSize": 1,
     "LearningRate": 0.001,
