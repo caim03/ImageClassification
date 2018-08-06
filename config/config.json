@@ -1,0 +1,16 @@
+{
+  "Training": "images/TRAIN",
+  "Validation": "images/VALIDATION",
+
+  "Parameters": {
+    "NumClass": 4,
+    "Height": 60,
+    "Width": 80,
+    "Channels": 3,
+    "BatchSize": 32,
+    "NumEpoch": 30,
+    "PrefetchSize": 1,
+    "LearningRate": 0.001,
+    "BatchNorm": 1
+  }
+}
