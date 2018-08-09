@@ -47,6 +47,7 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
     plt.savefig('./confusion_matrix.png')
 
+
 def plot_learning_curve(history):
     plt.figure(figsize=(8, 8))
     plt.subplot(1, 2, 1)
@@ -56,7 +57,7 @@ def plot_learning_curve(history):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('./accuracy_curve.png')
+    #plt.savefig('./accuracy_curve.png')
     # plt.clf()
     # summarize history for loss
     plt.subplot(1, 2, 2)
@@ -66,4 +67,4 @@ def plot_learning_curve(history):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('./loss_curve.png')
+    plt.savefig('./accuracy_loss.png')
