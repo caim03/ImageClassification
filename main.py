@@ -10,6 +10,8 @@ from preprocessing.balance import balance
 from model.custom_cnn import cnn
 from model.alex_net import alex_net
 from model.lenet_5 import lenet_5
+from model.custom_cnn2 import custom_cnn_2
+from model.vgg16 import vgg16
 from model.metrics_saver import Metrics, plot_learning_curve, plot_confusion_matrix
 from matplotlib import pyplot as plt
 import numpy as np
@@ -37,39 +39,42 @@ def main():
 
     # Decomment this lines to performs a pre-processing study
     # After normalization
-    plot_pixel_intensity(x_train[0], './pixel_intensity_after_normalization.png')
+    #plot_pixel_intensity(x_train[0], './pixel_intensity_after_normalization.png')
 
     # Verify if dataset is balanced
     #counters = dataset.get_counters()
     #balance(counters)
 
     # Data augmentation in real-time to reduce overfitting (regularization)
-    datagen = keras.preprocessing.image.ImageDataGenerator(
-        rotation_range=10,  # randomly rotate images in the range
-        width_shift_range=0.1,  # randomly shift images horizontally
-        height_shift_range=0.1,  # randomly shift images vertically
-        horizontal_flip=True)  # randomly flip images
+    datagen = keras.preprocessing.image.ImageDataGenerator()
+        #rotation_range=10,  # randomly rotate images in the range
+        #width_shift_range=0.1,  # randomly shift images horizontally
+        #height_shift_range=0.1,  # randomly shift images vertically
+        #horizontal_flip=True)  # randomly flip images
 
     train_batches = len(x_train) // parameters['BatchSize']  # // operator indicates a floor division
 
     # --- DEFINE MODEL ---
-    model = alex_net(num_classes=parameters['NumClass'], heigth=parameters['Height'], width=parameters['Width'],
+    model = custom_cnn_2(num_classes=parameters['NumClass'], heigth=parameters['Height'], width=parameters['Width'],
                 channels=parameters['Channels'])
 
+    lr = parameters['LearningRate']
+    decay = lr/parameters['NumEpoch']
+
     # --- TRAIN MODEL ---
-    model.compile(loss=categorical_crossentropy, optimizer=Adadelta(),
+    model.compile(loss=categorical_crossentropy, optimizer=SGD(lr=lr, decay=decay),
                   metrics=['accuracy'])
 
     # --- CHECKPOINTING TO SAVE BEST NETWORK ---
-    filepath = 'models_saved/alex_net.hdf5'
+    filepath = 'models_saved/custom_cnn_2.hdf5'
     checkpoint = ModelCheckpoint(filepath=filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
     history = model.fit_generator(generator=datagen.flow(x_train, y_train, batch_size=parameters['BatchSize']),
                                   steps_per_epoch=train_batches, validation_data=[x_val, y_val],
                                   epochs=parameters['NumEpoch'], callbacks=[Metrics('logs'), checkpoint])
 
-    model.load_weights('models_saved/alex_net.hdf5')
-    model.compile(loss=categorical_crossentropy, optimizer=Adadelta(),
+    model.load_weights('models_saved/custom_cnn_2.hdf5')
+    model.compile(loss=categorical_crossentropy, optimizer=SGD(lr=lr, decay=decay),
                   metrics=['accuracy'])
 
     # --- EVALUATE MODEL ---
@@ -78,7 +83,7 @@ def main():
     # --- PREDICT NEW VALUES ---
     y_pred = model.predict(x_val)  # Use validation because in this way we can evaluate some metrics with sklearn
 
-    write_to_file(score, y_val, y_pred, dict_elem, parameters['BatchSize'], parameters['NumEpoch'], "Alex_net")
+    write_to_file(score, y_val, y_pred, dict_elem, parameters['BatchSize'], parameters['NumEpoch'], "Custom CNN 2")
 
     classes_predicted = np.argmax(y_pred, axis=1)
     classes_true = np.argmax(y_val, axis=1)

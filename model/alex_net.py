@@ -4,7 +4,6 @@ from tensorflow.keras.layers import *
 
 def alex_net(num_classes, heigth, width, channels):
     """
-
     :param num_classes: Number of classes to classify
     :param heigth: Height of images
     :param width: Width of images

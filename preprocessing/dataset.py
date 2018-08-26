@@ -6,6 +6,7 @@ import numpy as np
 import os
 
 
+
 class Dataset():
     def __init__(self, train_path, val_path, param):
         self.train_path = train_path
@@ -20,14 +21,14 @@ class Dataset():
         self.labels_counter = []
 
         self.x_train, self.y_train = self.build_set()
-        self.x_val, self.y_val = self.build_set(mode='validation')
+        self.x_val, self.y_val = self.build_set(mode='validation')  # Take test images
 
         # Verify if data must be normalized
         # Decomment this line to plot pixel intensity before normalization
         # plot_pixel_intensity(self.x_train[0])
 
-        mean = self.x_train.mean()
-        std = self.x_train.std()
+        mean = self.x_train.mean(axis=0)
+        std = self.x_train.std(axis=0)
 
         self.x_train = (self.x_train - mean)/std
         self.x_val = (self.x_val - mean)/std
@@ -37,7 +38,6 @@ class Dataset():
     def hot_encoding(self):
         self.y_train = keras.utils.to_categorical(self.y_train, num_classes=self.classes)
         self.y_val = keras.utils.to_categorical(self.y_val, num_classes=self.classes)
-
     def build_set(self, mode='training'):
         x = []
         y = []
