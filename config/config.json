@@ -1,6 +1,7 @@
 {
   "Training": "images/TRAIN",
   "Validation": "images/VALIDATION",
+  "Test": "images/TEST_SIMPLE",
 
   "Parameters": {
     "NumClass": 4,

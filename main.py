@@ -30,27 +30,24 @@ def main():
 
     training_path = json_file['Training']
     validation_path = json_file['Validation']
+    test_path = json_file['Test']
     parameters = json_file['Parameters']
 
     # --- CREATE DATASET AND COMPUTE A PRE-PROCESSING---
-    dataset = Dataset(training_path, validation_path, parameters)
+    dataset = Dataset(training_path, validation_path, test_path, parameters)
     x_train, y_train = dataset.get_training()
     x_val, y_val = dataset.get_validation()
+    x_test, y_test = dataset.get_test()
 
     # Decomment this lines to performs a pre-processing study
     # After normalization
-    #plot_pixel_intensity(x_train[0], './pixel_intensity_after_normalization.png')
+    plot_pixel_intensity(x_train[0], './pixel_intensity_after_normalization.png')
 
     # Verify if dataset is balanced
-    #counters = dataset.get_counters()
-    #balance(counters)
+    counters = dataset.get_counters()
+    balance(counters)
 
-    # Data augmentation in real-time to reduce overfitting (regularization)
     datagen = keras.preprocessing.image.ImageDataGenerator()
-        #rotation_range=10,  # randomly rotate images in the range
-        #width_shift_range=0.1,  # randomly shift images horizontally
-        #height_shift_range=0.1,  # randomly shift images vertically
-        #horizontal_flip=True)  # randomly flip images
 
     train_batches = len(x_train) // parameters['BatchSize']  # // operator indicates a floor division
 
@@ -62,7 +59,7 @@ def main():
     decay = lr/parameters['NumEpoch']
 
     # --- TRAIN MODEL ---
-    model.compile(loss=categorical_crossentropy, optimizer=SGD(lr=lr, decay=decay),
+    model.compile(loss=categorical_crossentropy, optimizer=Adadelta(),
                   metrics=['accuracy'])
 
     # --- CHECKPOINTING TO SAVE BEST NETWORK ---
@@ -74,14 +71,14 @@ def main():
                                   epochs=parameters['NumEpoch'], callbacks=[Metrics('logs'), checkpoint])
 
     model.load_weights('models_saved/custom_cnn_2.hdf5')
-    model.compile(loss=categorical_crossentropy, optimizer=SGD(lr=lr, decay=decay),
+    model.compile(loss=categorical_crossentropy, optimizer=Adadelta(),
                   metrics=['accuracy'])
 
     # --- EVALUATE MODEL ---
     score = model.evaluate(x=x_val, y=y_val, verbose=0)
 
     # --- PREDICT NEW VALUES ---
-    y_pred = model.predict(x_val)  # Use validation because in this way we can evaluate some metrics with sklearn
+    y_pred = model.predict(x_val)  # Use validation because in this way we can evaluate some metrics with sklearn (use test with true prediction)
 
     write_to_file(score, y_val, y_pred, dict_elem, parameters['BatchSize'], parameters['NumEpoch'], "Custom CNN 2")
 
@@ -102,6 +99,7 @@ def main():
         mod.write(model_json)
 
     print("Model was saved successfully!")
+
 
 if __name__ == "__main__":
     main()

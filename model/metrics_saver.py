@@ -20,20 +20,26 @@ class Metrics(Callback):
         np.save(self.savepath, self.history)
 
 
-def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix'):
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
+    :param cm: Confusion matrix to print
+    :param classes: Dictionary of the class
+    :param normalize: If normalization is required
+    :param title: Title of the plot
+    :return: None
     """
-    plt.figure(figsize = (5,5))
+
+    plt.figure(figsize=(5, 5))
     plt.imshow(cm, interpolation='nearest')
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes, rotation=90)
     plt.yticks(tick_marks, classes)
+
+    # Normalize content if normalization is True
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
@@ -42,6 +48,7 @@ def plot_confusion_matrix(cm, classes,
         plt.text(j, i, cm[i, j],
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
+
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
@@ -49,7 +56,15 @@ def plot_confusion_matrix(cm, classes,
 
 
 def plot_learning_curve(history):
+    """
+
+    :param history: An object created by keras that contains all history and values retrieved during
+    training and validation operations
+    :return: None
+    """
     plt.figure(figsize=(8, 8))
+
+    # Summarize history for accuracy
     plt.subplot(1, 2, 1)
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])
@@ -57,9 +72,8 @@ def plot_learning_curve(history):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    #plt.savefig('./accuracy_curve.png')
-    # plt.clf()
-    # summarize history for loss
+
+    # Summarize history for loss
     plt.subplot(1, 2, 2)
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])

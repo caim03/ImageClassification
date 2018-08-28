@@ -4,6 +4,13 @@ from tensorflow.keras.layers import *
 BATCH_NORM = True
 
 def vgg16(num_classes, heigth, width, channels):
+    """
+    :param num_classes: Number of classes to classify
+    :param heigth: Height of images
+    :param width: Width of images
+    :param channels: The number of channels of images (3 if rgb)
+    :return: model
+    """
 
     input_shape = (heigth, width, channels)
 

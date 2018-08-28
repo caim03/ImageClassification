@@ -4,7 +4,6 @@ from tensorflow.keras.layers import *
 
 def lenet_5(num_classes, heigth, width, channels):
     """
-
     :param num_classes: Number of classes to classify
     :param heigth: Height of images
     :param width: Width of images
