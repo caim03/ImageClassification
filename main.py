@@ -96,17 +96,12 @@ def main():
     plot_confusion_matrix(confusion_mtx, classes=list(dict_elem.values()))
     plt.show()
 
-    '''
     # --- SAVE MODEL AND WEIGHTS ---
     model_json = model.to_json()
-    with open('models_saved/custom_cnn.json', 'w') as mod:
+    with open('models_saved/custom_cnn_2.json', 'w') as mod:
         mod.write(model_json)
 
-    model.save_weights('models_saved/custom_cnn.h5')
-
     print("Model was saved successfully!")
-    '''
-
 
 if __name__ == "__main__":
     main()
